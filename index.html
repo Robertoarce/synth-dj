@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYNTH DJ - Sound Designer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-panel: #12121a;
+      --bg-control: #1a1a25;
+      --accent-cyan: #00f5ff;
+      --accent-magenta: #ff00aa;
+      --accent-orange: #ff6b00;
+      --accent-green: #00ff88;
+      --accent-purple: #8b00ff;
+      --text-primary: #ffffff;
+      --text-secondary: #8888aa;
+      --glow-cyan: 0 0 20px rgba(0, 245, 255, 0.5);
+      --glow-magenta: 0 0 20px rgba(255, 0, 170, 0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      padding: 30px 0;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-family: 'Orbitron', monospace;
+      font-size: 3.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 60px rgba(0, 245, 255, 0.3);
+      letter-spacing: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      letter-spacing: 4px;
+      margin-top: 10px;
+    }
+
+    /* Main Layout */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 25px;
+    }
+
+    /* Control Panel */
+    .control-panel {
+      background: var(--bg-panel);
+      border-radius: 20px;
+      padding: 25px;
+      border: 1px solid rgba(0, 245, 255, 0.2);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      height: fit-content;
+      position: sticky;
+      top: 20px;
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      color: var(--accent-cyan);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 245, 255, 0.2);
+      letter-spacing: 3px;
+    }
+
+    /* Sliders */
+    .slider-group {
+      margin-bottom: 18px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .slider-name {
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .slider-value {
+      font-family: 'Orbitron', monospace;
+      color: var(--accent-cyan);
+      font-size: 0.8rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: var(--bg-control);
+      border-radius: 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: var(--glow-cyan);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.8);
+    }
+
+    /* Waveform Selector */
+    .waveform-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .wave-btn {
+      padding: 10px 5px;
+      background: var(--bg-control);
+      border: 1px solid rgba(0, 245, 255, 0.2);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+    }
+
+    .wave-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .wave-btn.active {
+      background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(255, 0, 170, 0.2));
+      border-color: var(--accent-cyan);
+      color: var(--text-primary);
+      box-shadow: var(--glow-cyan);
+    }
+
+    /* Play Button */
+    .play-btn {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--accent-magenta), var(--accent-purple));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 3px;
+      margin-top: 10px;
+      box-shadow: 0 5px 30px rgba(255, 0, 170, 0.4);
+    }
+
+    .play-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(255, 0, 170, 0.6);
+    }
+
+    .play-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Preset Grid */
+    .preset-section {
+      background: var(--bg-panel);
+      border-radius: 20px;
+      padding: 25px;
+      border: 1px solid rgba(255, 0, 170, 0.2);
+    }
+
+    .preset-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .preset-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      color: var(--accent-magenta);
+      letter-spacing: 3px;
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 10px;
+    }
+
+    .category-tab {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      color: var(--text-secondary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .category-tab:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+    }
+
+    .category-tab.active {
+      background: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      color: var(--bg-dark);
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      max-height: calc(100vh - 250px);
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+
+    .preset-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .preset-grid::-webkit-scrollbar-track {
+      background: var(--bg-control);
+      border-radius: 3px;
+    }
+
+    .preset-grid::-webkit-scrollbar-thumb {
+      background: var(--accent-cyan);
+      border-radius: 3px;
+    }
+
+    .preset-btn {
+      padding: 15px 10px;
+      background: var(--bg-control);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: capitalize;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .preset-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--preset-color, var(--accent-cyan));
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+
+    .preset-btn:hover::before {
+      transform: scaleX(1);
+    }
+
+    .preset-btn:hover {
+      border-color: var(--preset-color, var(--accent-cyan));
+      transform: translateY(-3px);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .preset-btn.active {
+      background: linear-gradient(135deg, rgba(0, 245, 255, 0.15), rgba(255, 0, 170, 0.15));
+      border-color: var(--accent-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+
+    .preset-btn.active::before {
+      transform: scaleX(1);
+    }
+
+    /* Visualizer */
+    .visualizer {
+      background: var(--bg-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 25px;
+      border: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    .visualizer-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      color: var(--accent-green);
+      margin-bottom: 15px;
+      letter-spacing: 3px;
+    }
+
+    #waveform-canvas {
+      width: 100%;
+      height: 120px;
+      background: var(--bg-control);
+      border-radius: 10px;
+    }
+
+    /* Volume Control */
+    .volume-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .volume-control {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .volume-icon {
+      font-size: 1.5rem;
+    }
+
+    /* Keyboard hint */
+    .keyboard-hint {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(0, 245, 255, 0.1);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .keyboard-hint kbd {
+      background: var(--bg-control);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Orbitron', monospace;
+      color: var(--accent-cyan);
+    }
+
+    /* Categories for presets */
+    .preset-category {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+      
+      .control-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+        letter-spacing: 4px;
+      }
+      
+      .preset-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+    }
+
+    /* Animation for playing */
+    @keyframes pulse {
+      0%, 100% { box-shadow: var(--glow-cyan); }
+      50% { box-shadow: 0 0 40px rgba(0, 245, 255, 0.8); }
+    }
+
+    .playing {
+      animation: pulse 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  
+  <div class="container">
+    <header>
+      <h1>SYNTH DJ</h1>
+      <p class="subtitle">SOUND DESIGNER & SYNTHESIZER</p>
+    </header>
+
+    <div class="main-layout">
+      <!-- Control Panel -->
+      <aside class="control-panel">
+        <h2 class="panel-title">SOUND ENGINE</h2>
+        
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Base Frequency</span>
+            <span class="slider-value" id="freq-value">440 Hz</span>
+          </div>
+          <input type="range" id="frequency" min="50" max="2000" value="440">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Freq Variation</span>
+            <span class="slider-value" id="variation-value">80</span>
+          </div>
+          <input type="range" id="variation" min="0" max="500" value="80">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Attack</span>
+            <span class="slider-value" id="attack-value">0.005s</span>
+          </div>
+          <input type="range" id="attack" min="1" max="200" value="5">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Decay</span>
+            <span class="slider-value" id="decay-value">0.020s</span>
+          </div>
+          <input type="range" id="decay" min="1" max="300" value="20">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Sustain</span>
+            <span class="slider-value" id="sustain-value">0.30</span>
+          </div>
+          <input type="range" id="sustain" min="0" max="100" value="30">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Release</span>
+            <span class="slider-value" id="release-value">0.020s</span>
+          </div>
+          <input type="range" id="release" min="1" max="500" value="20">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Filter Freq</span>
+            <span class="slider-value" id="filter-value">OFF</span>
+          </div>
+          <input type="range" id="filterFreq" min="0" max="8000" value="0">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Filter Q</span>
+            <span class="slider-value" id="filterQ-value">1.0</span>
+          </div>
+          <input type="range" id="filterQ" min="1" max="200" value="10">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Mod Frequency</span>
+            <span class="slider-value" id="modFreq-value">OFF</span>
+          </div>
+          <input type="range" id="modFreq" min="0" max="100" value="0">
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span class="slider-name">Mod Depth</span>
+            <span class="slider-value" id="modDepth-value">0</span>
+          </div>
+          <input type="range" id="modDepth" min="0" max="200" value="0">
+        </div>
+
+        <div class="slider-label" style="margin-bottom: 8px;">
+          <span class="slider-name">Waveform</span>
+        </div>
+        <div class="waveform-selector">
+          <button class="wave-btn active" data-wave="sine">Sine</button>
+          <button class="wave-btn" data-wave="square">Square</button>
+          <button class="wave-btn" data-wave="sawtooth">Saw</button>
+          <button class="wave-btn" data-wave="triangle">Tri</button>
+        </div>
+
+        <div class="volume-section">
+          <div class="slider-group">
+            <div class="slider-label">
+              <span class="slider-name">🔊 Master Volume</span>
+              <span class="slider-value" id="volume-value">70%</span>
+            </div>
+            <input type="range" id="volume" min="0" max="100" value="70">
+          </div>
+        </div>
+
+        <button class="play-btn" id="playBtn">▶ PLAY SOUND</button>
+
+        <div class="keyboard-hint">
+          Press <kbd>SPACE</kbd> to play • <kbd>1-9</kbd> for quick presets
+        </div>
+      </aside>
+
+      <!-- Preset Section -->
+      <main>
+        <section class="preset-section">
+          <div class="preset-header">
+            <h2 class="preset-title">SOUND PRESETS</h2>
+            <div class="category-tabs">
+              <button class="category-tab active" data-category="all">All</button>
+              <button class="category-tab" data-category="classic">Classic</button>
+              <button class="category-tab" data-category="electronic">Electronic</button>
+              <button class="category-tab" data-category="organic">Organic</button>
+              <button class="category-tab" data-category="fx">FX</button>
+            </div>
+          </div>
+          <div class="preset-grid" id="presetGrid"></div>
+        </section>
+
+        <section class="visualizer">
+          <h2 class="visualizer-title">WAVEFORM VISUALIZER</h2>
+          <canvas id="waveform-canvas"></canvas>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // SOUND CONFIGURATIONS - 100 PRESETS
+    // ============================================
+    const SOUND_TYPE_CONFIGS = {
+      // Classic Sounds
+      beep: {
+        category: 'classic',
+        baseFrequency: 440,
+        frequencyVariation: 80,
+        waveform: 'square',
+        attackTime: 0.005,
+        decayTime: 0.02,
+        sustainLevel: 0.3,
+        releaseTime: 0.02,
+      },
+      blip: {
+        category: 'classic',
+        baseFrequency: 600,
+        frequencyVariation: 150,
+        waveform: 'sine',
+        attackTime: 0.002,
+        decayTime: 0.03,
+        sustainLevel: 0.4,
+        releaseTime: 0.03,
+        filterFreq: 2000,
+      },
+      bubble: {
+        category: 'organic',
+        baseFrequency: 350,
+        frequencyVariation: 100,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.06,
+        sustainLevel: 0.2,
+        releaseTime: 0.08,
+        modulation: { freq: 15, depth: 50 },
+      },
+      chime: {
+        category: 'organic',
+        baseFrequency: 800,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.1,
+        sustainLevel: 0.1,
+        releaseTime: 0.15,
+        filterFreq: 4000,
+        filterQ: 2,
+      },
+      chirp: {
+        category: 'organic',
+        baseFrequency: 1200,
+        frequencyVariation: 400,
+        waveform: 'sine',
+        attackTime: 0.002,
+        decayTime: 0.02,
+        sustainLevel: 0.3,
+        releaseTime: 0.03,
+      },
+      squeak: {
+        category: 'organic',
+        baseFrequency: 900,
+        frequencyVariation: 300,
+        waveform: 'sine',
+        attackTime: 0.003,
+        decayTime: 0.04,
+        sustainLevel: 0.25,
+        releaseTime: 0.04,
+        modulation: { freq: 30, depth: 100 },
+      },
+      pop: {
+        category: 'classic',
+        baseFrequency: 250,
+        frequencyVariation: 50,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.02,
+        sustainLevel: 0.0,
+        releaseTime: 0.05,
+        filterFreq: 800,
+        filterQ: 5,
+      },
+      click: {
+        category: 'classic',
+        baseFrequency: 1500,
+        frequencyVariation: 200,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.01,
+        sustainLevel: 0.1,
+        releaseTime: 0.01,
+        filterFreq: 3000,
+      },
+      whisper: {
+        category: 'organic',
+        baseFrequency: 300,
+        frequencyVariation: 100,
+        waveform: 'sine',
+        attackTime: 0.02,
+        decayTime: 0.05,
+        sustainLevel: 0.15,
+        releaseTime: 0.1,
+        filterFreq: 1500,
+        filterQ: 0.5,
+      },
+      robotic: {
+        category: 'electronic',
+        baseFrequency: 200,
+        frequencyVariation: 80,
+        waveform: 'sawtooth',
+        attackTime: 0.002,
+        decayTime: 0.03,
+        sustainLevel: 0.4,
+        releaseTime: 0.02,
+        filterFreq: 1200,
+        filterQ: 8,
+      },
+      warm: {
+        category: 'organic',
+        baseFrequency: 280,
+        frequencyVariation: 60,
+        waveform: 'triangle',
+        attackTime: 0.01,
+        decayTime: 0.06,
+        sustainLevel: 0.35,
+        releaseTime: 0.08,
+        filterFreq: 1000,
+      },
+      crystal: {
+        category: 'organic',
+        baseFrequency: 1000,
+        frequencyVariation: 300,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.15,
+        sustainLevel: 0.05,
+        releaseTime: 0.2,
+        filterFreq: 6000,
+        filterQ: 3,
+      },
+      deep: {
+        category: 'electronic',
+        baseFrequency: 150,
+        frequencyVariation: 30,
+        waveform: 'triangle',
+        attackTime: 0.01,
+        decayTime: 0.08,
+        sustainLevel: 0.4,
+        releaseTime: 0.1,
+        filterFreq: 600,
+        filterQ: 2,
+      },
+      playful: {
+        category: 'organic',
+        baseFrequency: 500,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.003,
+        decayTime: 0.04,
+        sustainLevel: 0.3,
+        releaseTime: 0.05,
+        modulation: { freq: 20, depth: 80 },
+      },
+      mysterious: {
+        category: 'fx',
+        baseFrequency: 350,
+        frequencyVariation: 120,
+        waveform: 'sine',
+        attackTime: 0.02,
+        decayTime: 0.1,
+        sustainLevel: 0.2,
+        releaseTime: 0.15,
+        filterFreq: 2000,
+        filterQ: 4,
+        modulation: { freq: 5, depth: 30 },
+      },
+      // NEW PRESETS (16-50)
+      laser: {
+        category: 'fx',
+        baseFrequency: 1800,
+        frequencyVariation: 600,
+        waveform: 'sawtooth',
+        attackTime: 0.001,
+        decayTime: 0.05,
+        sustainLevel: 0.0,
+        releaseTime: 0.1,
+        filterFreq: 4000,
+        filterQ: 10,
+      },
+      arcade: {
+        category: 'electronic',
+        baseFrequency: 880,
+        frequencyVariation: 220,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.03,
+        sustainLevel: 0.2,
+        releaseTime: 0.02,
+      },
+      submarine: {
+        category: 'fx',
+        baseFrequency: 120,
+        frequencyVariation: 20,
+        waveform: 'sine',
+        attackTime: 0.05,
+        decayTime: 0.2,
+        sustainLevel: 0.6,
+        releaseTime: 0.3,
+        filterFreq: 400,
+        filterQ: 2,
+        modulation: { freq: 2, depth: 15 },
+      },
+      coin: {
+        category: 'classic',
+        baseFrequency: 1400,
+        frequencyVariation: 300,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.05,
+        sustainLevel: 0.0,
+        releaseTime: 0.08,
+        filterFreq: 5000,
+      },
+      zap: {
+        category: 'fx',
+        baseFrequency: 2000,
+        frequencyVariation: 800,
+        waveform: 'sawtooth',
+        attackTime: 0.001,
+        decayTime: 0.02,
+        sustainLevel: 0.0,
+        releaseTime: 0.05,
+        filterFreq: 6000,
+        filterQ: 15,
+      },
+      wobbly: {
+        category: 'electronic',
+        baseFrequency: 400,
+        frequencyVariation: 100,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.1,
+        sustainLevel: 0.5,
+        releaseTime: 0.15,
+        modulation: { freq: 8, depth: 150 },
+      },
+      glitch: {
+        category: 'electronic',
+        baseFrequency: 600,
+        frequencyVariation: 400,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.01,
+        sustainLevel: 0.5,
+        releaseTime: 0.01,
+        filterFreq: 2500,
+        filterQ: 12,
+      },
+      alien: {
+        category: 'fx',
+        baseFrequency: 700,
+        frequencyVariation: 250,
+        waveform: 'sine',
+        attackTime: 0.005,
+        decayTime: 0.08,
+        sustainLevel: 0.3,
+        releaseTime: 0.12,
+        modulation: { freq: 40, depth: 120 },
+      },
+      thunder: {
+        category: 'fx',
+        baseFrequency: 80,
+        frequencyVariation: 40,
+        waveform: 'sawtooth',
+        attackTime: 0.001,
+        decayTime: 0.3,
+        sustainLevel: 0.1,
+        releaseTime: 0.5,
+        filterFreq: 300,
+        filterQ: 1,
+      },
+      bell: {
+        category: 'organic',
+        baseFrequency: 1200,
+        frequencyVariation: 100,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.2,
+        sustainLevel: 0.0,
+        releaseTime: 0.4,
+        filterFreq: 5000,
+        filterQ: 5,
+      },
+      engine: {
+        category: 'fx',
+        baseFrequency: 100,
+        frequencyVariation: 20,
+        waveform: 'sawtooth',
+        attackTime: 0.02,
+        decayTime: 0.1,
+        sustainLevel: 0.7,
+        releaseTime: 0.15,
+        filterFreq: 800,
+        filterQ: 3,
+        modulation: { freq: 25, depth: 30 },
+      },
+      flutter: {
+        category: 'organic',
+        baseFrequency: 1500,
+        frequencyVariation: 500,
+        waveform: 'sine',
+        attackTime: 0.002,
+        decayTime: 0.05,
+        sustainLevel: 0.2,
+        releaseTime: 0.08,
+        modulation: { freq: 50, depth: 200 },
+      },
+      growl: {
+        category: 'electronic',
+        baseFrequency: 120,
+        frequencyVariation: 30,
+        waveform: 'sawtooth',
+        attackTime: 0.01,
+        decayTime: 0.1,
+        sustainLevel: 0.6,
+        releaseTime: 0.12,
+        filterFreq: 500,
+        filterQ: 10,
+        modulation: { freq: 6, depth: 40 },
+      },
+      sparkle: {
+        category: 'organic',
+        baseFrequency: 2000,
+        frequencyVariation: 400,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.08,
+        sustainLevel: 0.0,
+        releaseTime: 0.12,
+        filterFreq: 7000,
+        filterQ: 4,
+      },
+      swoosh: {
+        category: 'fx',
+        baseFrequency: 800,
+        frequencyVariation: 600,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.15,
+        sustainLevel: 0.0,
+        releaseTime: 0.2,
+        filterFreq: 3000,
+      },
+      pulse: {
+        category: 'electronic',
+        baseFrequency: 300,
+        frequencyVariation: 50,
+        waveform: 'square',
+        attackTime: 0.005,
+        decayTime: 0.05,
+        sustainLevel: 0.5,
+        releaseTime: 0.05,
+        filterFreq: 1500,
+        filterQ: 6,
+      },
+      dreamy: {
+        category: 'organic',
+        baseFrequency: 600,
+        frequencyVariation: 150,
+        waveform: 'triangle',
+        attackTime: 0.03,
+        decayTime: 0.15,
+        sustainLevel: 0.3,
+        releaseTime: 0.25,
+        filterFreq: 2500,
+        filterQ: 1,
+        modulation: { freq: 3, depth: 20 },
+      },
+      synth: {
+        category: 'electronic',
+        baseFrequency: 440,
+        frequencyVariation: 100,
+        waveform: 'sawtooth',
+        attackTime: 0.01,
+        decayTime: 0.08,
+        sustainLevel: 0.4,
+        releaseTime: 0.1,
+        filterFreq: 2000,
+        filterQ: 5,
+      },
+      retro: {
+        category: 'classic',
+        baseFrequency: 523,
+        frequencyVariation: 130,
+        waveform: 'square',
+        attackTime: 0.002,
+        decayTime: 0.04,
+        sustainLevel: 0.35,
+        releaseTime: 0.04,
+        filterFreq: 1800,
+      },
+      bass: {
+        category: 'electronic',
+        baseFrequency: 80,
+        frequencyVariation: 15,
+        waveform: 'sine',
+        attackTime: 0.005,
+        decayTime: 0.1,
+        sustainLevel: 0.5,
+        releaseTime: 0.15,
+        filterFreq: 400,
+        filterQ: 2,
+      },
+      pluck: {
+        category: 'organic',
+        baseFrequency: 660,
+        frequencyVariation: 80,
+        waveform: 'triangle',
+        attackTime: 0.001,
+        decayTime: 0.12,
+        sustainLevel: 0.0,
+        releaseTime: 0.15,
+        filterFreq: 3000,
+        filterQ: 3,
+      },
+      horn: {
+        category: 'organic',
+        baseFrequency: 350,
+        frequencyVariation: 50,
+        waveform: 'sawtooth',
+        attackTime: 0.02,
+        decayTime: 0.08,
+        sustainLevel: 0.5,
+        releaseTime: 0.12,
+        filterFreq: 1500,
+        filterQ: 2,
+      },
+      wind: {
+        category: 'organic',
+        baseFrequency: 250,
+        frequencyVariation: 150,
+        waveform: 'sine',
+        attackTime: 0.05,
+        decayTime: 0.2,
+        sustainLevel: 0.2,
+        releaseTime: 0.3,
+        filterFreq: 800,
+        filterQ: 0.5,
+        modulation: { freq: 4, depth: 100 },
+      },
+      digital: {
+        category: 'electronic',
+        baseFrequency: 1000,
+        frequencyVariation: 300,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.02,
+        sustainLevel: 0.4,
+        releaseTime: 0.02,
+        filterFreq: 4000,
+        filterQ: 8,
+      },
+      droplet: {
+        category: 'organic',
+        baseFrequency: 1800,
+        frequencyVariation: 400,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.06,
+        sustainLevel: 0.0,
+        releaseTime: 0.1,
+        filterFreq: 5000,
+        filterQ: 6,
+      },
+      alarm: {
+        category: 'classic',
+        baseFrequency: 1000,
+        frequencyVariation: 200,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.01,
+        sustainLevel: 0.6,
+        releaseTime: 0.01,
+        filterFreq: 3500,
+      },
+      cosmic: {
+        category: 'fx',
+        baseFrequency: 500,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.02,
+        decayTime: 0.15,
+        sustainLevel: 0.25,
+        releaseTime: 0.25,
+        filterFreq: 3000,
+        filterQ: 3,
+        modulation: { freq: 7, depth: 60 },
+      },
+      electric: {
+        category: 'electronic',
+        baseFrequency: 220,
+        frequencyVariation: 50,
+        waveform: 'sawtooth',
+        attackTime: 0.001,
+        decayTime: 0.03,
+        sustainLevel: 0.45,
+        releaseTime: 0.04,
+        filterFreq: 1800,
+        filterQ: 7,
+      },
+      bounce: {
+        category: 'classic',
+        baseFrequency: 400,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.04,
+        sustainLevel: 0.0,
+        releaseTime: 0.08,
+        modulation: { freq: 12, depth: 80 },
+      },
+      radio: {
+        category: 'classic',
+        baseFrequency: 800,
+        frequencyVariation: 100,
+        waveform: 'square',
+        attackTime: 0.002,
+        decayTime: 0.03,
+        sustainLevel: 0.25,
+        releaseTime: 0.03,
+        filterFreq: 2000,
+        filterQ: 4,
+      },
+      whoosh: {
+        category: 'fx',
+        baseFrequency: 400,
+        frequencyVariation: 350,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.2,
+        sustainLevel: 0.0,
+        releaseTime: 0.25,
+        filterFreq: 2000,
+        filterQ: 1,
+      },
+      siren: {
+        category: 'fx',
+        baseFrequency: 600,
+        frequencyVariation: 400,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.1,
+        sustainLevel: 0.5,
+        releaseTime: 0.1,
+        modulation: { freq: 4, depth: 300 },
+      },
+      twinkle: {
+        category: 'organic',
+        baseFrequency: 1600,
+        frequencyVariation: 300,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.1,
+        sustainLevel: 0.0,
+        releaseTime: 0.15,
+        filterFreq: 6000,
+        filterQ: 4,
+      },
+      muffled: {
+        category: 'organic',
+        baseFrequency: 200,
+        frequencyVariation: 50,
+        waveform: 'triangle',
+        attackTime: 0.02,
+        decayTime: 0.1,
+        sustainLevel: 0.3,
+        releaseTime: 0.15,
+        filterFreq: 500,
+        filterQ: 1,
+      },
+      zing: {
+        category: 'fx',
+        baseFrequency: 1400,
+        frequencyVariation: 500,
+        waveform: 'sawtooth',
+        attackTime: 0.001,
+        decayTime: 0.03,
+        sustainLevel: 0.0,
+        releaseTime: 0.06,
+        filterFreq: 5000,
+        filterQ: 12,
+      },
+      wobble: {
+        category: 'electronic',
+        baseFrequency: 180,
+        frequencyVariation: 40,
+        waveform: 'sawtooth',
+        attackTime: 0.01,
+        decayTime: 0.1,
+        sustainLevel: 0.5,
+        releaseTime: 0.12,
+        filterFreq: 1000,
+        filterQ: 8,
+        modulation: { freq: 5, depth: 200 },
+      },
+      notify: {
+        category: 'classic',
+        baseFrequency: 880,
+        frequencyVariation: 100,
+        waveform: 'sine',
+        attackTime: 0.002,
+        decayTime: 0.05,
+        sustainLevel: 0.2,
+        releaseTime: 0.08,
+        filterFreq: 3000,
+        filterQ: 2,
+      },
+      glassy: {
+        category: 'organic',
+        baseFrequency: 1100,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.18,
+        sustainLevel: 0.0,
+        releaseTime: 0.25,
+        filterFreq: 5500,
+        filterQ: 5,
+      },
+      thump: {
+        category: 'electronic',
+        baseFrequency: 60,
+        frequencyVariation: 10,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.08,
+        sustainLevel: 0.0,
+        releaseTime: 0.12,
+        filterFreq: 200,
+        filterQ: 3,
+      },
+      ethereal: {
+        category: 'fx',
+        baseFrequency: 700,
+        frequencyVariation: 150,
+        waveform: 'triangle',
+        attackTime: 0.04,
+        decayTime: 0.2,
+        sustainLevel: 0.2,
+        releaseTime: 0.35,
+        filterFreq: 3500,
+        filterQ: 2,
+        modulation: { freq: 2, depth: 25 },
+      },
+      // ============================================
+      // 50 MORE PRESETS (51-100)
+      // ============================================
+      phaser: {
+        category: 'electronic',
+        baseFrequency: 550,
+        frequencyVariation: 180,
+        waveform: 'sawtooth',
+        attackTime: 0.008,
+        decayTime: 0.06,
+        sustainLevel: 0.35,
+        releaseTime: 0.1,
+        filterFreq: 2200,
+        filterQ: 6,
+        modulation: { freq: 3, depth: 45 },
+      },
+      meteor: {
+        category: 'fx',
+        baseFrequency: 1600,
+        frequencyVariation: 700,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.25,
+        sustainLevel: 0.0,
+        releaseTime: 0.3,
+        filterFreq: 4500,
+        filterQ: 3,
+      },
+      whistle: {
+        category: 'organic',
+        baseFrequency: 1400,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.08,
+        sustainLevel: 0.4,
+        releaseTime: 0.1,
+        filterFreq: 4000,
+        filterQ: 8,
+      },
+      android: {
+        category: 'electronic',
+        baseFrequency: 380,
+        frequencyVariation: 120,
+        waveform: 'square',
+        attackTime: 0.003,
+        decayTime: 0.04,
+        sustainLevel: 0.3,
+        releaseTime: 0.05,
+        filterFreq: 1600,
+        filterQ: 10,
+      },
+      dolphin: {
+        category: 'organic',
+        baseFrequency: 1800,
+        frequencyVariation: 600,
+        waveform: 'sine',
+        attackTime: 0.002,
+        decayTime: 0.04,
+        sustainLevel: 0.2,
+        releaseTime: 0.06,
+        modulation: { freq: 35, depth: 150 },
+      },
+      rumble: {
+        category: 'fx',
+        baseFrequency: 55,
+        frequencyVariation: 15,
+        waveform: 'sawtooth',
+        attackTime: 0.03,
+        decayTime: 0.15,
+        sustainLevel: 0.5,
+        releaseTime: 0.25,
+        filterFreq: 250,
+        filterQ: 2,
+        modulation: { freq: 8, depth: 20 },
+      },
+      pixie: {
+        category: 'organic',
+        baseFrequency: 1900,
+        frequencyVariation: 350,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.05,
+        sustainLevel: 0.0,
+        releaseTime: 0.08,
+        filterFreq: 6500,
+        filterQ: 5,
+      },
+      drone: {
+        category: 'electronic',
+        baseFrequency: 140,
+        frequencyVariation: 25,
+        waveform: 'sawtooth',
+        attackTime: 0.05,
+        decayTime: 0.2,
+        sustainLevel: 0.6,
+        releaseTime: 0.3,
+        filterFreq: 700,
+        filterQ: 4,
+        modulation: { freq: 1, depth: 10 },
+      },
+      snare: {
+        category: 'classic',
+        baseFrequency: 180,
+        frequencyVariation: 80,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.05,
+        sustainLevel: 0.0,
+        releaseTime: 0.1,
+        filterFreq: 2500,
+        filterQ: 1,
+      },
+      kick: {
+        category: 'classic',
+        baseFrequency: 65,
+        frequencyVariation: 20,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.1,
+        sustainLevel: 0.0,
+        releaseTime: 0.15,
+        filterFreq: 300,
+        filterQ: 2,
+      },
+      hihat: {
+        category: 'classic',
+        baseFrequency: 1800,
+        frequencyVariation: 500,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.02,
+        sustainLevel: 0.0,
+        releaseTime: 0.04,
+        filterFreq: 7000,
+        filterQ: 1,
+      },
+      tom: {
+        category: 'classic',
+        baseFrequency: 120,
+        frequencyVariation: 40,
+        waveform: 'triangle',
+        attackTime: 0.001,
+        decayTime: 0.08,
+        sustainLevel: 0.0,
+        releaseTime: 0.12,
+        filterFreq: 800,
+        filterQ: 3,
+      },
+      clap: {
+        category: 'classic',
+        baseFrequency: 400,
+        frequencyVariation: 200,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.03,
+        sustainLevel: 0.0,
+        releaseTime: 0.08,
+        filterFreq: 2000,
+        filterQ: 1,
+      },
+      perc: {
+        category: 'classic',
+        baseFrequency: 800,
+        frequencyVariation: 150,
+        waveform: 'triangle',
+        attackTime: 0.001,
+        decayTime: 0.04,
+        sustainLevel: 0.0,
+        releaseTime: 0.06,
+        filterFreq: 3500,
+        filterQ: 4,
+      },
+      rimshot: {
+        category: 'classic',
+        baseFrequency: 950,
+        frequencyVariation: 100,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.015,
+        sustainLevel: 0.0,
+        releaseTime: 0.03,
+        filterFreq: 4500,
+        filterQ: 6,
+      },
+      stab: {
+        category: 'electronic',
+        baseFrequency: 350,
+        frequencyVariation: 80,
+        waveform: 'sawtooth',
+        attackTime: 0.002,
+        decayTime: 0.06,
+        sustainLevel: 0.2,
+        releaseTime: 0.08,
+        filterFreq: 1800,
+        filterQ: 7,
+      },
+      pad: {
+        category: 'organic',
+        baseFrequency: 300,
+        frequencyVariation: 50,
+        waveform: 'triangle',
+        attackTime: 0.08,
+        decayTime: 0.2,
+        sustainLevel: 0.5,
+        releaseTime: 0.4,
+        filterFreq: 1500,
+        filterQ: 1,
+      },
+      lead: {
+        category: 'electronic',
+        baseFrequency: 660,
+        frequencyVariation: 150,
+        waveform: 'sawtooth',
+        attackTime: 0.005,
+        decayTime: 0.08,
+        sustainLevel: 0.5,
+        releaseTime: 0.1,
+        filterFreq: 3000,
+        filterQ: 5,
+      },
+      arp: {
+        category: 'electronic',
+        baseFrequency: 520,
+        frequencyVariation: 130,
+        waveform: 'square',
+        attackTime: 0.002,
+        decayTime: 0.03,
+        sustainLevel: 0.3,
+        releaseTime: 0.04,
+        filterFreq: 2500,
+        filterQ: 6,
+      },
+      sweep: {
+        category: 'fx',
+        baseFrequency: 300,
+        frequencyVariation: 200,
+        waveform: 'sawtooth',
+        attackTime: 0.01,
+        decayTime: 0.3,
+        sustainLevel: 0.0,
+        releaseTime: 0.4,
+        filterFreq: 1500,
+        filterQ: 10,
+        modulation: { freq: 0.5, depth: 200 },
+      },
+      riser: {
+        category: 'fx',
+        baseFrequency: 200,
+        frequencyVariation: 100,
+        waveform: 'sawtooth',
+        attackTime: 0.1,
+        decayTime: 0.3,
+        sustainLevel: 0.4,
+        releaseTime: 0.2,
+        filterFreq: 2000,
+        filterQ: 8,
+        modulation: { freq: 2, depth: 150 },
+      },
+      impact: {
+        category: 'fx',
+        baseFrequency: 45,
+        frequencyVariation: 15,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.2,
+        sustainLevel: 0.0,
+        releaseTime: 0.4,
+        filterFreq: 180,
+        filterQ: 3,
+      },
+      cinematic: {
+        category: 'fx',
+        baseFrequency: 80,
+        frequencyVariation: 30,
+        waveform: 'sawtooth',
+        attackTime: 0.05,
+        decayTime: 0.25,
+        sustainLevel: 0.3,
+        releaseTime: 0.35,
+        filterFreq: 400,
+        filterQ: 2,
+        modulation: { freq: 1, depth: 15 },
+      },
+      tension: {
+        category: 'fx',
+        baseFrequency: 250,
+        frequencyVariation: 80,
+        waveform: 'sine',
+        attackTime: 0.03,
+        decayTime: 0.15,
+        sustainLevel: 0.4,
+        releaseTime: 0.2,
+        filterFreq: 1200,
+        filterQ: 6,
+        modulation: { freq: 6, depth: 40 },
+      },
+      space: {
+        category: 'fx',
+        baseFrequency: 600,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.04,
+        decayTime: 0.2,
+        sustainLevel: 0.2,
+        releaseTime: 0.35,
+        filterFreq: 3500,
+        filterQ: 3,
+        modulation: { freq: 3, depth: 50 },
+      },
+      nebula: {
+        category: 'fx',
+        baseFrequency: 450,
+        frequencyVariation: 150,
+        waveform: 'triangle',
+        attackTime: 0.06,
+        decayTime: 0.25,
+        sustainLevel: 0.25,
+        releaseTime: 0.4,
+        filterFreq: 2500,
+        filterQ: 2,
+        modulation: { freq: 2, depth: 35 },
+      },
+      galaxy: {
+        category: 'fx',
+        baseFrequency: 380,
+        frequencyVariation: 120,
+        waveform: 'sine',
+        attackTime: 0.05,
+        decayTime: 0.2,
+        sustainLevel: 0.3,
+        releaseTime: 0.3,
+        filterFreq: 2800,
+        filterQ: 4,
+        modulation: { freq: 4, depth: 45 },
+      },
+      pulsar: {
+        category: 'electronic',
+        baseFrequency: 280,
+        frequencyVariation: 60,
+        waveform: 'square',
+        attackTime: 0.003,
+        decayTime: 0.04,
+        sustainLevel: 0.4,
+        releaseTime: 0.05,
+        filterFreq: 1400,
+        filterQ: 8,
+        modulation: { freq: 10, depth: 30 },
+      },
+      voltage: {
+        category: 'electronic',
+        baseFrequency: 320,
+        frequencyVariation: 90,
+        waveform: 'sawtooth',
+        attackTime: 0.002,
+        decayTime: 0.05,
+        sustainLevel: 0.35,
+        releaseTime: 0.06,
+        filterFreq: 1600,
+        filterQ: 9,
+      },
+      circuit: {
+        category: 'electronic',
+        baseFrequency: 480,
+        frequencyVariation: 140,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.025,
+        sustainLevel: 0.3,
+        releaseTime: 0.03,
+        filterFreq: 2200,
+        filterQ: 10,
+      },
+      binary: {
+        category: 'electronic',
+        baseFrequency: 700,
+        frequencyVariation: 200,
+        waveform: 'square',
+        attackTime: 0.001,
+        decayTime: 0.015,
+        sustainLevel: 0.2,
+        releaseTime: 0.02,
+        filterFreq: 3000,
+        filterQ: 12,
+      },
+      matrix: {
+        category: 'electronic',
+        baseFrequency: 550,
+        frequencyVariation: 170,
+        waveform: 'sawtooth',
+        attackTime: 0.002,
+        decayTime: 0.04,
+        sustainLevel: 0.35,
+        releaseTime: 0.05,
+        filterFreq: 2400,
+        filterQ: 7,
+      },
+      cyber: {
+        category: 'electronic',
+        baseFrequency: 420,
+        frequencyVariation: 130,
+        waveform: 'square',
+        attackTime: 0.003,
+        decayTime: 0.05,
+        sustainLevel: 0.4,
+        releaseTime: 0.06,
+        filterFreq: 1900,
+        filterQ: 8,
+        modulation: { freq: 15, depth: 60 },
+      },
+      neon: {
+        category: 'electronic',
+        baseFrequency: 750,
+        frequencyVariation: 180,
+        waveform: 'sine',
+        attackTime: 0.002,
+        decayTime: 0.06,
+        sustainLevel: 0.25,
+        releaseTime: 0.08,
+        filterFreq: 3500,
+        filterQ: 5,
+      },
+      holo: {
+        category: 'fx',
+        baseFrequency: 850,
+        frequencyVariation: 220,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.12,
+        sustainLevel: 0.15,
+        releaseTime: 0.18,
+        filterFreq: 4000,
+        filterQ: 4,
+        modulation: { freq: 8, depth: 70 },
+      },
+      quantum: {
+        category: 'fx',
+        baseFrequency: 580,
+        frequencyVariation: 190,
+        waveform: 'triangle',
+        attackTime: 0.008,
+        decayTime: 0.1,
+        sustainLevel: 0.2,
+        releaseTime: 0.15,
+        filterFreq: 2800,
+        filterQ: 5,
+        modulation: { freq: 12, depth: 55 },
+      },
+      atom: {
+        category: 'fx',
+        baseFrequency: 920,
+        frequencyVariation: 250,
+        waveform: 'sine',
+        attackTime: 0.003,
+        decayTime: 0.07,
+        sustainLevel: 0.1,
+        releaseTime: 0.12,
+        filterFreq: 4500,
+        filterQ: 6,
+      },
+      photon: {
+        category: 'fx',
+        baseFrequency: 1100,
+        frequencyVariation: 280,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.05,
+        sustainLevel: 0.0,
+        releaseTime: 0.09,
+        filterFreq: 5500,
+        filterQ: 7,
+      },
+      plasma: {
+        category: 'electronic',
+        baseFrequency: 260,
+        frequencyVariation: 70,
+        waveform: 'sawtooth',
+        attackTime: 0.01,
+        decayTime: 0.08,
+        sustainLevel: 0.45,
+        releaseTime: 0.1,
+        filterFreq: 1300,
+        filterQ: 9,
+        modulation: { freq: 18, depth: 80 },
+      },
+      fusion: {
+        category: 'electronic',
+        baseFrequency: 340,
+        frequencyVariation: 100,
+        waveform: 'sawtooth',
+        attackTime: 0.005,
+        decayTime: 0.07,
+        sustainLevel: 0.4,
+        releaseTime: 0.09,
+        filterFreq: 1700,
+        filterQ: 7,
+      },
+      nova: {
+        category: 'fx',
+        baseFrequency: 500,
+        frequencyVariation: 250,
+        waveform: 'sine',
+        attackTime: 0.001,
+        decayTime: 0.15,
+        sustainLevel: 0.0,
+        releaseTime: 0.25,
+        filterFreq: 3000,
+        filterQ: 4,
+      },
+      echo: {
+        category: 'organic',
+        baseFrequency: 440,
+        frequencyVariation: 100,
+        waveform: 'sine',
+        attackTime: 0.01,
+        decayTime: 0.15,
+        sustainLevel: 0.2,
+        releaseTime: 0.25,
+        filterFreq: 2000,
+        filterQ: 2,
+      },
+      reverb: {
+        category: 'organic',
+        baseFrequency: 520,
+        frequencyVariation: 120,
+        waveform: 'triangle',
+        attackTime: 0.02,
+        decayTime: 0.2,
+        sustainLevel: 0.15,
+        releaseTime: 0.35,
+        filterFreq: 2500,
+        filterQ: 1,
+      },
+      shimmer: {
+        category: 'organic',
+        baseFrequency: 1300,
+        frequencyVariation: 300,
+        waveform: 'sine',
+        attackTime: 0.005,
+        decayTime: 0.1,
+        sustainLevel: 0.1,
+        releaseTime: 0.18,
+        filterFreq: 5000,
+        filterQ: 4,
+        modulation: { freq: 6, depth: 40 },
+      },
+      glow: {
+        category: 'organic',
+        baseFrequency: 680,
+        frequencyVariation: 140,
+        waveform: 'triangle',
+        attackTime: 0.03,
+        decayTime: 0.12,
+        sustainLevel: 0.25,
+        releaseTime: 0.2,
+        filterFreq: 2800,
+        filterQ: 2,
+      },
+      aura: {
+        category: 'organic',
+        baseFrequency: 480,
+        frequencyVariation: 110,
+        waveform: 'sine',
+        attackTime: 0.04,
+        decayTime: 0.15,
+        sustainLevel: 0.3,
+        releaseTime: 0.25,
+        filterFreq: 2200,
+        filterQ: 3,
+        modulation: { freq: 4, depth: 30 },
+      },
+      zen: {
+        category: 'organic',
+        baseFrequency: 320,
+        frequencyVariation: 60,
+        waveform: 'sine',
+        attackTime: 0.05,
+        decayTime: 0.18,
+        sustainLevel: 0.35,
+        releaseTime: 0.3,
+        filterFreq: 1500,
+        filterQ: 1,
+      },
+      calm: {
+        category: 'organic',
+        baseFrequency: 260,
+        frequencyVariation: 40,
+        waveform: 'triangle',
+        attackTime: 0.06,
+        decayTime: 0.2,
+        sustainLevel: 0.4,
+        releaseTime: 0.35,
+        filterFreq: 1200,
+        filterQ: 1,
+      }
+    };
+
+    // ============================================
+    // AUDIO ENGINE
+    // ============================================
+    let audioContext = null;
+    let analyser = null;
+    let masterGain = null;
+    let currentWaveform = 'sine';
+    let currentPreset = null;
+
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        masterGain = audioContext.createGain();
+        masterGain.connect(analyser);
+        analyser.connect(audioContext.destination);
+        masterGain.gain.value = 0.7;
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    }
+
+    function playSound() {
+      initAudio();
+      
+      const freq = parseFloat(document.getElementById('frequency').value);
+      const variation = parseFloat(document.getElementById('variation').value);
+      const attack = parseFloat(document.getElementById('attack').value) / 1000;
+      const decay = parseFloat(document.getElementById('decay').value) / 1000;
+      const sustain = parseFloat(document.getElementById('sustain').value) / 100;
+      const release = parseFloat(document.getElementById('release').value) / 1000;
+      const filterFreq = parseFloat(document.getElementById('filterFreq').value);
+      const filterQ = parseFloat(document.getElementById('filterQ').value) / 10;
+      const modFreq = parseFloat(document.getElementById('modFreq').value);
+      const modDepth = parseFloat(document.getElementById('modDepth').value);
+      const volume = parseFloat(document.getElementById('volume').value) / 100;
+
+      // Random frequency variation
+      const actualFreq = freq + (Math.random() - 0.5) * variation * 2;
+
+      // Create oscillator
+      const osc = audioContext.createOscillator();
+      osc.type = currentWaveform;
+      osc.frequency.value = actualFreq;
+
+      // Create gain for envelope
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = 0;
+
+      // Create modulator if enabled
+      let modOsc = null;
+      let modGain = null;
+      if (modFreq > 0) {
+        modOsc = audioContext.createOscillator();
+        modGain = audioContext.createGain();
+        modOsc.frequency.value = modFreq;
+        modGain.gain.value = modDepth;
+        modOsc.connect(modGain);
+        modGain.connect(osc.frequency);
+        modOsc.start();
+      }
+
+      // Create filter if enabled
+      let lastNode = gainNode;
+      if (filterFreq > 0) {
+        const filter = audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = filterFreq;
+        filter.Q.value = filterQ;
+        gainNode.connect(filter);
+        lastNode = filter;
+      }
+
+      lastNode.connect(masterGain);
+      osc.connect(gainNode);
+
+      // Set volume
+      masterGain.gain.value = volume;
+
+      const now = audioContext.currentTime;
+      
+      // ADSR Envelope
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.8, now + attack);
+      gainNode.gain.linearRampToValueAtTime(sustain * 0.8, now + attack + decay);
+      gainNode.gain.linearRampToValueAtTime(0, now + attack + decay + release);
+
+      osc.start(now);
+      osc.stop(now + attack + decay + release + 0.1);
+
+      if (modOsc) {
+        modOsc.stop(now + attack + decay + release + 0.1);
+      }
+
+      // Visual feedback
+      const playBtn = document.getElementById('playBtn');
+      playBtn.classList.add('playing');
+      setTimeout(() => playBtn.classList.remove('playing'), 300);
+    }
+
+    function loadPreset(name) {
+      const config = SOUND_TYPE_CONFIGS[name];
+      if (!config) return;
+
+      currentPreset = name;
+
+      document.getElementById('frequency').value = config.baseFrequency;
+      document.getElementById('variation').value = config.frequencyVariation;
+      document.getElementById('attack').value = config.attackTime * 1000;
+      document.getElementById('decay').value = config.decayTime * 1000;
+      document.getElementById('sustain').value = config.sustainLevel * 100;
+      document.getElementById('release').value = config.releaseTime * 1000;
+      document.getElementById('filterFreq').value = config.filterFreq || 0;
+      document.getElementById('filterQ').value = (config.filterQ || 1) * 10;
+      document.getElementById('modFreq').value = config.modulation?.freq || 0;
+      document.getElementById('modDepth').value = config.modulation?.depth || 0;
+
+      currentWaveform = config.waveform;
+      document.querySelectorAll('.wave-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.wave === config.waveform);
+      });
+
+      updateAllLabels();
+
+      // Update active preset button
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.preset === name);
+      });
+
+      // Auto-play on preset select
+      playSound();
+    }
+
+    function updateAllLabels() {
+      document.getElementById('freq-value').textContent = document.getElementById('frequency').value + ' Hz';
+      document.getElementById('variation-value').textContent = document.getElementById('variation').value;
+      document.getElementById('attack-value').textContent = (document.getElementById('attack').value / 1000).toFixed(3) + 's';
+      document.getElementById('decay-value').textContent = (document.getElementById('decay').value / 1000).toFixed(3) + 's';
+      document.getElementById('sustain-value').textContent = (document.getElementById('sustain').value / 100).toFixed(2);
+      document.getElementById('release-value').textContent = (document.getElementById('release').value / 1000).toFixed(3) + 's';
+      
+      const filterVal = document.getElementById('filterFreq').value;
+      document.getElementById('filter-value').textContent = filterVal == 0 ? 'OFF' : filterVal + ' Hz';
+      document.getElementById('filterQ-value').textContent = (document.getElementById('filterQ').value / 10).toFixed(1);
+      
+      const modVal = document.getElementById('modFreq').value;
+      document.getElementById('modFreq-value').textContent = modVal == 0 ? 'OFF' : modVal + ' Hz';
+      document.getElementById('modDepth-value').textContent = document.getElementById('modDepth').value;
+      
+      document.getElementById('volume-value').textContent = document.getElementById('volume').value + '%';
+    }
+
+    // ============================================
+    // VISUALIZER
+    // ============================================
+    function setupVisualizer() {
+      const canvas = document.getElementById('waveform-canvas');
+      const ctx = canvas.getContext('2d');
+      
+      function resize() {
+        canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+        canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      function draw() {
+        requestAnimationFrame(draw);
+        
+        const width = canvas.width;
+        const height = canvas.height;
+        
+        ctx.fillStyle = '#1a1a25';
+        ctx.fillRect(0, 0, width, height);
+
+        if (!analyser) {
+          // Draw idle state
+          ctx.strokeStyle = 'rgba(0, 245, 255, 0.3)';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(0, height / 2);
+          ctx.lineTo(width, height / 2);
+          ctx.stroke();
+          return;
+        }
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteTimeDomainData(dataArray);
+
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, width, 0);
+        gradient.addColorStop(0, '#00f5ff');
+        gradient.addColorStop(0.5, '#ff00aa');
+        gradient.addColorStop(1, '#00ff88');
+
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = gradient;
+        ctx.beginPath();
+
+        const sliceWidth = width / bufferLength;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = (v * height) / 2;
+
+          if (i === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          x += sliceWidth;
+        }
+
+        ctx.lineTo(width, height / 2);
+        ctx.stroke();
+
+        // Glow effect
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00f5ff';
+      }
+
+      draw();
+    }
+
+    // ============================================
+    // UI SETUP
+    // ============================================
+    function createPresetGrid() {
+      const grid = document.getElementById('presetGrid');
+      const colors = {
+        classic: '#00f5ff',
+        electronic: '#ff00aa',
+        organic: '#00ff88',
+        fx: '#ff6b00'
+      };
+
+      Object.entries(SOUND_TYPE_CONFIGS).forEach(([name, config], index) => {
+        const btn = document.createElement('button');
+        btn.className = 'preset-btn';
+        btn.dataset.preset = name;
+        btn.dataset.category = config.category;
+        btn.style.setProperty('--preset-color', colors[config.category]);
+        btn.innerHTML = `
+          ${name}
+          <div class="preset-category">${config.category}</div>
+        `;
+        btn.addEventListener('click', () => loadPreset(name));
+        grid.appendChild(btn);
+      });
+    }
+
+    function setupEventListeners() {
+      // Sliders
+      document.querySelectorAll('input[type="range"]').forEach(slider => {
+        slider.addEventListener('input', updateAllLabels);
+      });
+
+      // Waveform buttons
+      document.querySelectorAll('.wave-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.wave-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentWaveform = btn.dataset.wave;
+        });
+      });
+
+      // Play button
+      document.getElementById('playBtn').addEventListener('click', playSound);
+
+      // Keyboard shortcuts - SPACE always plays sound
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          e.stopPropagation();
+          playSound();
+          return;
+        }
+        // Quick preset shortcuts (1-9) - only when not in input
+        if (e.target.tagName !== 'INPUT') {
+          const presetNames = Object.keys(SOUND_TYPE_CONFIGS);
+          const num = parseInt(e.key);
+          if (num >= 1 && num <= 9) {
+            loadPreset(presetNames[num - 1]);
+          }
+        }
+      });
+
+      // Category tabs
+      document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          const category = tab.dataset.category;
+          document.querySelectorAll('.preset-btn').forEach(btn => {
+            if (category === 'all' || btn.dataset.category === category) {
+              btn.style.display = 'block';
+            } else {
+              btn.style.display = 'none';
+            }
+          });
+        });
+      });
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      createPresetGrid();
+      setupEventListeners();
+      setupVisualizer();
+      updateAllLabels();
+    });
+  </script>
+</body>
+</html>
+

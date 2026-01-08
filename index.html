@@ -168,7 +168,7 @@
     .waveform-selector {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      gap: 6px;
       margin-bottom: 20px;
     }
 
@@ -445,6 +445,137 @@
     .playing {
       animation: pulse 0.3s ease-in-out;
     }
+
+    /* Talk Mode Styles */
+    .talk-section {
+      background: var(--bg-panel);
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 25px;
+      border: 1px solid rgba(255, 107, 0, 0.3);
+    }
+
+    .talk-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      color: var(--accent-orange);
+      margin-bottom: 15px;
+      letter-spacing: 3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .talk-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .voice-btn {
+      padding: 12px 15px;
+      background: linear-gradient(135deg, rgba(255, 107, 0, 0.2), rgba(255, 0, 170, 0.1));
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+    }
+
+    .voice-btn:hover {
+      background: linear-gradient(135deg, rgba(255, 107, 0, 0.4), rgba(255, 0, 170, 0.2));
+      border-color: var(--accent-orange);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(255, 107, 0, 0.3);
+    }
+
+    .voice-btn.speaking {
+      animation: speaking 0.1s ease-in-out infinite alternate;
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 20px rgba(255, 107, 0, 0.5);
+    }
+
+    @keyframes speaking {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.02); }
+    }
+
+    .talk-input-section {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .talk-input {
+      flex: 1;
+      padding: 12px 15px;
+      background: var(--bg-control);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .talk-input:focus {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 15px rgba(255, 107, 0, 0.2);
+    }
+
+    .talk-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .speak-btn {
+      padding: 12px 25px;
+      background: linear-gradient(135deg, var(--accent-orange), #ff3300);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-family: 'Orbitron', monospace;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 2px;
+    }
+
+    .speak-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 25px rgba(255, 107, 0, 0.5);
+    }
+
+    .voice-params {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .voice-param {
+      text-align: center;
+    }
+
+    .voice-param label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .voice-param input[type="range"] {
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -549,6 +680,10 @@
           <button class="wave-btn" data-wave="square">Square</button>
           <button class="wave-btn" data-wave="sawtooth">Saw</button>
           <button class="wave-btn" data-wave="triangle">Tri</button>
+          <button class="wave-btn" data-wave="pulse">Pulse</button>
+          <button class="wave-btn" data-wave="noise">Noise</button>
+          <button class="wave-btn" data-wave="super">Super</button>
+          <button class="wave-btn" data-wave="organ">Organ</button>
         </div>
 
         <div class="volume-section">
@@ -564,7 +699,7 @@
         <button class="play-btn" id="playBtn">▶ PLAY SOUND</button>
 
         <div class="keyboard-hint">
-          Press <kbd>SPACE</kbd> to play • <kbd>1-9</kbd> for quick presets
+          <kbd>SPACE</kbd> play • <kbd>←→↑↓</kbd> browse presets • <kbd>1-9</kbd> quick select
         </div>
       </aside>
 
@@ -579,6 +714,7 @@
               <button class="category-tab" data-category="electronic">Electronic</button>
               <button class="category-tab" data-category="organic">Organic</button>
               <button class="category-tab" data-category="fx">FX</button>
+              <button class="category-tab" data-category="voice">Voice</button>
             </div>
           </div>
           <div class="preset-grid" id="presetGrid"></div>
@@ -588,13 +724,55 @@
           <h2 class="visualizer-title">WAVEFORM VISUALIZER</h2>
           <canvas id="waveform-canvas"></canvas>
         </section>
+
+        <section class="talk-section">
+          <h2 class="talk-title">🗣️ COMIC VOICE MODE</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 15px;">
+            Click a voice to make it "talk" or type text and hit SPEAK!
+          </p>
+          
+          <div class="talk-controls">
+            <button class="voice-btn" data-voice="cartoon">🎭 Cartoon</button>
+            <button class="voice-btn" data-voice="chipmunk">🐿️ Chipmunk</button>
+            <button class="voice-btn" data-voice="robot">🤖 Robot</button>
+            <button class="voice-btn" data-voice="monster">👹 Monster</button>
+            <button class="voice-btn" data-voice="fairy">🧚 Fairy</button>
+            <button class="voice-btn" data-voice="drunk">🍺 Drunk</button>
+            <button class="voice-btn" data-voice="alien">👽 Alien</button>
+            <button class="voice-btn" data-voice="baby">👶 Baby</button>
+            <button class="voice-btn" data-voice="grumpy">😠 Grumpy</button>
+            <button class="voice-btn" data-voice="excited">🤩 Excited</button>
+            <button class="voice-btn" data-voice="sleepy">😴 Sleepy</button>
+            <button class="voice-btn" data-voice="nervous">😰 Nervous</button>
+          </div>
+
+          <div class="talk-input-section">
+            <input type="text" class="talk-input" id="talkInput" placeholder="Type something to speak..." maxlength="100">
+            <button class="speak-btn" id="speakBtn">🔊 SPEAK</button>
+          </div>
+
+          <div class="voice-params">
+            <div class="voice-param">
+              <label>Speed</label>
+              <input type="range" id="voiceSpeed" min="50" max="200" value="100">
+            </div>
+            <div class="voice-param">
+              <label>Pitch</label>
+              <input type="range" id="voicePitch" min="50" max="200" value="100">
+            </div>
+            <div class="voice-param">
+              <label>Randomness</label>
+              <input type="range" id="voiceRandom" min="0" max="100" value="50">
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
 
   <script>
     // ============================================
-    // SOUND CONFIGURATIONS - 100 PRESETS
+    // SOUND CONFIGURATIONS - 120+ PRESETS
     // ============================================
     const SOUND_TYPE_CONFIGS = {
       // Classic Sounds
@@ -1841,7 +2019,414 @@
         releaseTime: 0.35,
         filterFreq: 1200,
         filterQ: 1,
+      },
+      // ============================================
+      // NEW WAVEFORM SHOWCASE PRESETS
+      // ============================================
+      superLead: {
+        category: 'electronic',
+        baseFrequency: 440,
+        frequencyVariation: 50,
+        waveform: 'super',
+        attackTime: 0.01,
+        decayTime: 0.1,
+        sustainLevel: 0.5,
+        releaseTime: 0.15,
+        filterFreq: 2500,
+        filterQ: 4,
+      },
+      fatBass: {
+        category: 'electronic',
+        baseFrequency: 80,
+        frequencyVariation: 10,
+        waveform: 'super',
+        attackTime: 0.005,
+        decayTime: 0.08,
+        sustainLevel: 0.6,
+        releaseTime: 0.12,
+        filterFreq: 600,
+        filterQ: 6,
+      },
+      organChurch: {
+        category: 'organic',
+        baseFrequency: 262,
+        frequencyVariation: 30,
+        waveform: 'organ',
+        attackTime: 0.02,
+        decayTime: 0.1,
+        sustainLevel: 0.7,
+        releaseTime: 0.2,
+        filterFreq: 3000,
+        filterQ: 1,
+      },
+      organFunky: {
+        category: 'electronic',
+        baseFrequency: 330,
+        frequencyVariation: 80,
+        waveform: 'organ',
+        attackTime: 0.005,
+        decayTime: 0.05,
+        sustainLevel: 0.4,
+        releaseTime: 0.08,
+        filterFreq: 2000,
+        filterQ: 5,
+      },
+      pulseRetro: {
+        category: 'electronic',
+        baseFrequency: 440,
+        frequencyVariation: 100,
+        waveform: 'pulse',
+        attackTime: 0.003,
+        decayTime: 0.04,
+        sustainLevel: 0.35,
+        releaseTime: 0.05,
+        filterFreq: 1800,
+        filterQ: 6,
+      },
+      pulseNarrow: {
+        category: 'electronic',
+        baseFrequency: 520,
+        frequencyVariation: 120,
+        waveform: 'pulse',
+        attackTime: 0.002,
+        decayTime: 0.03,
+        sustainLevel: 0.3,
+        releaseTime: 0.04,
+        filterFreq: 2200,
+        filterQ: 8,
+      },
+      noiseHit: {
+        category: 'fx',
+        baseFrequency: 1000,
+        frequencyVariation: 200,
+        waveform: 'noise',
+        attackTime: 0.001,
+        decayTime: 0.05,
+        sustainLevel: 0.0,
+        releaseTime: 0.1,
+        filterFreq: 3000,
+        filterQ: 2,
+      },
+      noiseWind: {
+        category: 'fx',
+        baseFrequency: 800,
+        frequencyVariation: 300,
+        waveform: 'noise',
+        attackTime: 0.05,
+        decayTime: 0.2,
+        sustainLevel: 0.3,
+        releaseTime: 0.3,
+        filterFreq: 1500,
+        filterQ: 1,
+      },
+      noiseSnare: {
+        category: 'classic',
+        baseFrequency: 400,
+        frequencyVariation: 100,
+        waveform: 'noise',
+        attackTime: 0.001,
+        decayTime: 0.04,
+        sustainLevel: 0.0,
+        releaseTime: 0.08,
+        filterFreq: 4000,
+        filterQ: 1,
+      },
+      superPad: {
+        category: 'organic',
+        baseFrequency: 300,
+        frequencyVariation: 40,
+        waveform: 'super',
+        attackTime: 0.08,
+        decayTime: 0.2,
+        sustainLevel: 0.5,
+        releaseTime: 0.4,
+        filterFreq: 2000,
+        filterQ: 2,
+      },
+      // ============================================
+      // COMIC VOICE PRESETS
+      // ============================================
+      talkCartoon: {
+        category: 'voice',
+        baseFrequency: 280,
+        frequencyVariation: 120,
+        waveform: 'sine',
+        attackTime: 0.008,
+        decayTime: 0.04,
+        sustainLevel: 0.3,
+        releaseTime: 0.03,
+        filterFreq: 1800,
+        filterQ: 3,
+        modulation: { freq: 25, depth: 40 },
+      },
+      talkChipmunk: {
+        category: 'voice',
+        baseFrequency: 600,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.005,
+        decayTime: 0.03,
+        sustainLevel: 0.35,
+        releaseTime: 0.02,
+        filterFreq: 3500,
+        filterQ: 2,
+        modulation: { freq: 35, depth: 60 },
+      },
+      talkRobot: {
+        category: 'voice',
+        baseFrequency: 180,
+        frequencyVariation: 60,
+        waveform: 'square',
+        attackTime: 0.002,
+        decayTime: 0.03,
+        sustainLevel: 0.4,
+        releaseTime: 0.02,
+        filterFreq: 1200,
+        filterQ: 10,
+      },
+      talkMonster: {
+        category: 'voice',
+        baseFrequency: 100,
+        frequencyVariation: 40,
+        waveform: 'sawtooth',
+        attackTime: 0.015,
+        decayTime: 0.06,
+        sustainLevel: 0.5,
+        releaseTime: 0.05,
+        filterFreq: 600,
+        filterQ: 4,
+        modulation: { freq: 8, depth: 30 },
+      },
+      talkFairy: {
+        category: 'voice',
+        baseFrequency: 800,
+        frequencyVariation: 250,
+        waveform: 'sine',
+        attackTime: 0.003,
+        decayTime: 0.025,
+        sustainLevel: 0.25,
+        releaseTime: 0.03,
+        filterFreq: 4500,
+        filterQ: 3,
+        modulation: { freq: 45, depth: 80 },
+      },
+      talkDrunk: {
+        category: 'voice',
+        baseFrequency: 200,
+        frequencyVariation: 150,
+        waveform: 'sine',
+        attackTime: 0.02,
+        decayTime: 0.08,
+        sustainLevel: 0.35,
+        releaseTime: 0.06,
+        filterFreq: 1000,
+        filterQ: 2,
+        modulation: { freq: 3, depth: 50 },
+      },
+      talkAlien: {
+        category: 'voice',
+        baseFrequency: 450,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.005,
+        decayTime: 0.04,
+        sustainLevel: 0.3,
+        releaseTime: 0.04,
+        filterFreq: 2500,
+        filterQ: 6,
+        modulation: { freq: 60, depth: 100 },
+      },
+      talkBaby: {
+        category: 'voice',
+        baseFrequency: 400,
+        frequencyVariation: 150,
+        waveform: 'sine',
+        attackTime: 0.008,
+        decayTime: 0.035,
+        sustainLevel: 0.3,
+        releaseTime: 0.03,
+        filterFreq: 2800,
+        filterQ: 2,
+        modulation: { freq: 20, depth: 50 },
+      },
+      talkGrumpy: {
+        category: 'voice',
+        baseFrequency: 140,
+        frequencyVariation: 50,
+        waveform: 'sawtooth',
+        attackTime: 0.01,
+        decayTime: 0.05,
+        sustainLevel: 0.45,
+        releaseTime: 0.04,
+        filterFreq: 800,
+        filterQ: 5,
+        modulation: { freq: 6, depth: 20 },
+      },
+      talkExcited: {
+        category: 'voice',
+        baseFrequency: 500,
+        frequencyVariation: 200,
+        waveform: 'sine',
+        attackTime: 0.003,
+        decayTime: 0.025,
+        sustainLevel: 0.35,
+        releaseTime: 0.02,
+        filterFreq: 3000,
+        filterQ: 3,
+        modulation: { freq: 30, depth: 70 },
+      },
+      talkSleepy: {
+        category: 'voice',
+        baseFrequency: 220,
+        frequencyVariation: 80,
+        waveform: 'triangle',
+        attackTime: 0.025,
+        decayTime: 0.1,
+        sustainLevel: 0.25,
+        releaseTime: 0.08,
+        filterFreq: 1200,
+        filterQ: 1,
+        modulation: { freq: 4, depth: 25 },
+      },
+      talkNervous: {
+        category: 'voice',
+        baseFrequency: 350,
+        frequencyVariation: 180,
+        waveform: 'sine',
+        attackTime: 0.004,
+        decayTime: 0.02,
+        sustainLevel: 0.3,
+        releaseTime: 0.02,
+        filterFreq: 2200,
+        filterQ: 4,
+        modulation: { freq: 40, depth: 90 },
       }
+    };
+
+    // ============================================
+    // COMIC VOICE CONFIGURATIONS
+    // ============================================
+    const VOICE_CONFIGS = {
+      cartoon: {
+        baseFreq: 280,
+        freqRange: 120,
+        waveform: 'sine',
+        syllableDuration: 80,
+        pitchContour: [1, 1.2, 0.9, 1.1, 0.95],
+        filterFreq: 1800,
+        modFreq: 25,
+        modDepth: 40,
+      },
+      chipmunk: {
+        baseFreq: 600,
+        freqRange: 200,
+        waveform: 'sine',
+        syllableDuration: 50,
+        pitchContour: [1, 1.3, 1.1, 1.25, 1.15],
+        filterFreq: 3500,
+        modFreq: 35,
+        modDepth: 60,
+      },
+      robot: {
+        baseFreq: 180,
+        freqRange: 60,
+        waveform: 'square',
+        syllableDuration: 100,
+        pitchContour: [1, 1, 0.9, 0.9, 1],
+        filterFreq: 1200,
+        modFreq: 0,
+        modDepth: 0,
+      },
+      monster: {
+        baseFreq: 100,
+        freqRange: 40,
+        waveform: 'sawtooth',
+        syllableDuration: 150,
+        pitchContour: [1, 0.9, 0.85, 0.95, 0.9],
+        filterFreq: 600,
+        modFreq: 8,
+        modDepth: 30,
+      },
+      fairy: {
+        baseFreq: 800,
+        freqRange: 250,
+        waveform: 'sine',
+        syllableDuration: 60,
+        pitchContour: [1, 1.4, 1.2, 1.35, 1.1],
+        filterFreq: 4500,
+        modFreq: 45,
+        modDepth: 80,
+      },
+      drunk: {
+        baseFreq: 200,
+        freqRange: 150,
+        waveform: 'sine',
+        syllableDuration: 180,
+        pitchContour: [1, 0.7, 1.3, 0.8, 1.1],
+        filterFreq: 1000,
+        modFreq: 3,
+        modDepth: 50,
+      },
+      alien: {
+        baseFreq: 450,
+        freqRange: 200,
+        waveform: 'sine',
+        syllableDuration: 70,
+        pitchContour: [1, 1.5, 0.6, 1.4, 0.8],
+        filterFreq: 2500,
+        modFreq: 60,
+        modDepth: 100,
+      },
+      baby: {
+        baseFreq: 400,
+        freqRange: 150,
+        waveform: 'sine',
+        syllableDuration: 90,
+        pitchContour: [1, 1.3, 1.1, 1.25, 1.15],
+        filterFreq: 2800,
+        modFreq: 20,
+        modDepth: 50,
+      },
+      grumpy: {
+        baseFreq: 140,
+        freqRange: 50,
+        waveform: 'sawtooth',
+        syllableDuration: 120,
+        pitchContour: [1, 0.95, 0.9, 0.85, 0.9],
+        filterFreq: 800,
+        modFreq: 6,
+        modDepth: 20,
+      },
+      excited: {
+        baseFreq: 500,
+        freqRange: 200,
+        waveform: 'sine',
+        syllableDuration: 55,
+        pitchContour: [1, 1.3, 1.15, 1.35, 1.2],
+        filterFreq: 3000,
+        modFreq: 30,
+        modDepth: 70,
+      },
+      sleepy: {
+        baseFreq: 220,
+        freqRange: 80,
+        waveform: 'triangle',
+        syllableDuration: 200,
+        pitchContour: [1, 0.95, 0.9, 0.85, 0.8],
+        filterFreq: 1200,
+        modFreq: 4,
+        modDepth: 25,
+      },
+      nervous: {
+        baseFreq: 350,
+        freqRange: 180,
+        waveform: 'sine',
+        syllableDuration: 45,
+        pitchContour: [1, 1.2, 0.8, 1.3, 0.9],
+        filterFreq: 2200,
+        modFreq: 40,
+        modDepth: 90,
+      },
     };
 
     // ============================================
@@ -1868,6 +2453,47 @@
       }
     }
 
+    // Create noise buffer for noise waveform
+    let noiseBuffer = null;
+    function createNoiseBuffer() {
+      if (noiseBuffer) return noiseBuffer;
+      const bufferSize = audioContext.sampleRate * 2;
+      noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      return noiseBuffer;
+    }
+
+    // Create custom periodic wave for pulse waveform
+    function createPulseWave(dutyCycle = 0.3) {
+      const real = new Float32Array(64);
+      const imag = new Float32Array(64);
+      real[0] = 0;
+      imag[0] = 0;
+      for (let i = 1; i < 64; i++) {
+        imag[i] = (2 / (i * Math.PI)) * Math.sin(i * Math.PI * dutyCycle);
+      }
+      return audioContext.createPeriodicWave(real, imag);
+    }
+
+    // Create organ-like harmonic wave
+    function createOrganWave() {
+      const real = new Float32Array(16);
+      const imag = new Float32Array(16);
+      real[0] = 0; imag[0] = 0;
+      // Drawbar-style harmonics (16', 8', 4', 2-2/3', 2', etc.)
+      imag[1] = 0.8;   // Fundamental
+      imag[2] = 0.6;   // 2nd harmonic
+      imag[3] = 0.4;   // 3rd harmonic
+      imag[4] = 0.5;   // 4th harmonic
+      imag[5] = 0.2;   // 5th harmonic
+      imag[6] = 0.3;   // 6th harmonic
+      imag[8] = 0.25;  // 8th harmonic
+      return audioContext.createPeriodicWave(real, imag);
+    }
+
     function playSound() {
       initAudio();
       
@@ -1885,27 +2511,115 @@
 
       // Random frequency variation
       const actualFreq = freq + (Math.random() - 0.5) * variation * 2;
-
-      // Create oscillator
-      const osc = audioContext.createOscillator();
-      osc.type = currentWaveform;
-      osc.frequency.value = actualFreq;
+      const now = audioContext.currentTime;
+      const duration = attack + decay + release;
 
       // Create gain for envelope
       const gainNode = audioContext.createGain();
       gainNode.gain.value = 0;
 
-      // Create modulator if enabled
-      let modOsc = null;
-      let modGain = null;
-      if (modFreq > 0) {
-        modOsc = audioContext.createOscillator();
-        modGain = audioContext.createGain();
-        modOsc.frequency.value = modFreq;
-        modGain.gain.value = modDepth;
-        modOsc.connect(modGain);
-        modGain.connect(osc.frequency);
-        modOsc.start();
+      // Array to hold all audio sources for cleanup
+      const sources = [];
+      const modulators = [];
+
+      // Handle different waveform types
+      if (currentWaveform === 'noise') {
+        // Noise waveform - use buffer source
+        const noiseSource = audioContext.createBufferSource();
+        noiseSource.buffer = createNoiseBuffer();
+        noiseSource.loop = true;
+        noiseSource.connect(gainNode);
+        noiseSource.start(now);
+        noiseSource.stop(now + duration + 0.1);
+        sources.push(noiseSource);
+
+      } else if (currentWaveform === 'super') {
+        // Super saw - multiple detuned oscillators
+        const detuneAmounts = [-12, -7, 0, 7, 12];
+        detuneAmounts.forEach(detune => {
+          const osc = audioContext.createOscillator();
+          osc.type = 'sawtooth';
+          osc.frequency.value = actualFreq;
+          osc.detune.value = detune;
+          
+          const oscGain = audioContext.createGain();
+          oscGain.gain.value = 0.25; // Reduce volume per oscillator
+          
+          osc.connect(oscGain);
+          oscGain.connect(gainNode);
+          osc.start(now);
+          osc.stop(now + duration + 0.1);
+          sources.push(osc);
+        });
+
+      } else if (currentWaveform === 'pulse') {
+        // Pulse wave with custom duty cycle
+        const osc = audioContext.createOscillator();
+        osc.setPeriodicWave(createPulseWave(0.25));
+        osc.frequency.value = actualFreq;
+        osc.connect(gainNode);
+        osc.start(now);
+        osc.stop(now + duration + 0.1);
+        sources.push(osc);
+
+        // Add modulation if enabled
+        if (modFreq > 0) {
+          const modOsc = audioContext.createOscillator();
+          const modGain = audioContext.createGain();
+          modOsc.frequency.value = modFreq;
+          modGain.gain.value = modDepth;
+          modOsc.connect(modGain);
+          modGain.connect(osc.frequency);
+          modOsc.start(now);
+          modOsc.stop(now + duration + 0.1);
+          modulators.push(modOsc);
+        }
+
+      } else if (currentWaveform === 'organ') {
+        // Organ wave with harmonics
+        const osc = audioContext.createOscillator();
+        osc.setPeriodicWave(createOrganWave());
+        osc.frequency.value = actualFreq;
+        osc.connect(gainNode);
+        osc.start(now);
+        osc.stop(now + duration + 0.1);
+        sources.push(osc);
+
+        // Add modulation if enabled
+        if (modFreq > 0) {
+          const modOsc = audioContext.createOscillator();
+          const modGain = audioContext.createGain();
+          modOsc.frequency.value = modFreq;
+          modGain.gain.value = modDepth;
+          modOsc.connect(modGain);
+          modGain.connect(osc.frequency);
+          modOsc.start(now);
+          modOsc.stop(now + duration + 0.1);
+          modulators.push(modOsc);
+        }
+
+      } else {
+        // Standard waveforms (sine, square, sawtooth, triangle)
+        const osc = audioContext.createOscillator();
+        osc.type = currentWaveform;
+        osc.frequency.value = actualFreq;
+        osc.connect(gainNode);
+        osc.start(now);
+        osc.stop(now + duration + 0.1);
+        sources.push(osc);
+
+        // Add modulation if enabled
+        if (modFreq > 0) {
+          const modOsc = audioContext.createOscillator();
+          const modGain = audioContext.createGain();
+          modOsc.frequency.value = modFreq;
+          modGain.gain.value = modDepth;
+          modOsc.connect(modGain);
+          modGain.connect(osc.frequency);
+          modOsc.start(now);
+          modOsc.stop(now + duration + 0.1);
+          modulators.push(modOsc);
+        }
       }
 
       // Create filter if enabled
@@ -1920,25 +2634,15 @@
       }
 
       lastNode.connect(masterGain);
-      osc.connect(gainNode);
 
       // Set volume
       masterGain.gain.value = volume;
-
-      const now = audioContext.currentTime;
       
       // ADSR Envelope
       gainNode.gain.setValueAtTime(0, now);
       gainNode.gain.linearRampToValueAtTime(0.8, now + attack);
       gainNode.gain.linearRampToValueAtTime(sustain * 0.8, now + attack + decay);
-      gainNode.gain.linearRampToValueAtTime(0, now + attack + decay + release);
-
-      osc.start(now);
-      osc.stop(now + attack + decay + release + 0.1);
-
-      if (modOsc) {
-        modOsc.stop(now + attack + decay + release + 0.1);
-      }
+      gainNode.gain.linearRampToValueAtTime(0, now + duration);
 
       // Visual feedback
       const playBtn = document.getElementById('playBtn');
@@ -1970,9 +2674,13 @@
 
       updateAllLabels();
 
-      // Update active preset button
+      // Update active preset button and scroll into view
       document.querySelectorAll('.preset-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.preset === name);
+        const isActive = btn.dataset.preset === name;
+        btn.classList.toggle('active', isActive);
+        if (isActive) {
+          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       });
 
       // Auto-play on preset select
@@ -2081,7 +2789,8 @@
         classic: '#00f5ff',
         electronic: '#ff00aa',
         organic: '#00ff88',
-        fx: '#ff6b00'
+        fx: '#ff6b00',
+        voice: '#ffdd00'
       };
 
       Object.entries(SOUND_TYPE_CONFIGS).forEach(([name, config], index) => {
@@ -2117,19 +2826,58 @@
       // Play button
       document.getElementById('playBtn').addEventListener('click', playSound);
 
-      // Keyboard shortcuts - SPACE always plays sound
+      // Track current preset selection for arrow navigation
+      let currentPresetIndex = -1;
+      
+      // Get visible presets (respecting category filter)
+      function getVisiblePresets() {
+        return Array.from(document.querySelectorAll('.preset-btn')).filter(btn => 
+          btn.style.display !== 'none'
+        );
+      }
+
+      // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
+        const isInTalkInput = e.target.id === 'talkInput';
+        
+        // SPACE plays sound - but NOT when typing in talk input
+        if (e.code === 'Space' && !isInTalkInput) {
           e.preventDefault();
           e.stopPropagation();
           playSound();
           return;
         }
-        // Quick preset shortcuts (1-9) - only when not in input
+        
+        // Arrow keys navigate presets (not when in any input)
         if (e.target.tagName !== 'INPUT') {
+          const visiblePresets = getVisiblePresets();
+          const gridColumns = Math.floor(document.getElementById('presetGrid').offsetWidth / 132); // ~120px + gap
+          
+          if (e.code === 'ArrowRight') {
+            e.preventDefault();
+            currentPresetIndex = Math.min(currentPresetIndex + 1, visiblePresets.length - 1);
+            if (currentPresetIndex < 0) currentPresetIndex = 0;
+            loadPreset(visiblePresets[currentPresetIndex].dataset.preset);
+          } else if (e.code === 'ArrowLeft') {
+            e.preventDefault();
+            currentPresetIndex = Math.max(currentPresetIndex - 1, 0);
+            loadPreset(visiblePresets[currentPresetIndex].dataset.preset);
+          } else if (e.code === 'ArrowDown') {
+            e.preventDefault();
+            currentPresetIndex = Math.min(currentPresetIndex + gridColumns, visiblePresets.length - 1);
+            if (currentPresetIndex < 0) currentPresetIndex = 0;
+            loadPreset(visiblePresets[currentPresetIndex].dataset.preset);
+          } else if (e.code === 'ArrowUp') {
+            e.preventDefault();
+            currentPresetIndex = Math.max(currentPresetIndex - gridColumns, 0);
+            loadPreset(visiblePresets[currentPresetIndex].dataset.preset);
+          }
+          
+          // Quick preset shortcuts (1-9)
           const presetNames = Object.keys(SOUND_TYPE_CONFIGS);
           const num = parseInt(e.key);
           if (num >= 1 && num <= 9) {
+            currentPresetIndex = num - 1;
             loadPreset(presetNames[num - 1]);
           }
         }
@@ -2154,12 +2902,169 @@
     }
 
     // ============================================
+    // COMIC VOICE TALK ENGINE
+    // ============================================
+    let isSpeaking = false;
+    let currentVoice = 'cartoon';
+
+    function playSyllable(voiceConfig, pitchMultiplier, randomFactor) {
+      initAudio();
+      
+      const speedMod = parseFloat(document.getElementById('voiceSpeed').value) / 100;
+      const pitchMod = parseFloat(document.getElementById('voicePitch').value) / 100;
+      const randomMod = parseFloat(document.getElementById('voiceRandom').value) / 100;
+      const volume = parseFloat(document.getElementById('volume').value) / 100;
+
+      // Calculate frequency with pitch contour and randomness
+      const baseFreq = voiceConfig.baseFreq * pitchMod;
+      const randomOffset = (Math.random() - 0.5) * voiceConfig.freqRange * randomMod * 2;
+      const freq = baseFreq * pitchMultiplier + randomOffset;
+
+      // Create oscillator
+      const osc = audioContext.createOscillator();
+      osc.type = voiceConfig.waveform;
+      osc.frequency.value = freq;
+
+      // Create gain for envelope
+      const gainNode = audioContext.createGain();
+      gainNode.gain.value = 0;
+
+      // Add modulation for more natural sound
+      if (voiceConfig.modFreq > 0) {
+        const modOsc = audioContext.createOscillator();
+        const modGain = audioContext.createGain();
+        modOsc.frequency.value = voiceConfig.modFreq + (Math.random() - 0.5) * 10;
+        modGain.gain.value = voiceConfig.modDepth * randomFactor;
+        modOsc.connect(modGain);
+        modGain.connect(osc.frequency);
+        modOsc.start();
+        const duration = (voiceConfig.syllableDuration / speedMod) / 1000;
+        modOsc.stop(audioContext.currentTime + duration + 0.1);
+      }
+
+      // Add filter for formant-like effect
+      const filter = audioContext.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = voiceConfig.filterFreq + (Math.random() - 0.5) * 500;
+      filter.Q.value = 2 + Math.random() * 3;
+
+      gainNode.connect(filter);
+      filter.connect(masterGain);
+      osc.connect(gainNode);
+
+      masterGain.gain.value = volume;
+
+      const now = audioContext.currentTime;
+      const duration = (voiceConfig.syllableDuration / speedMod) / 1000;
+      
+      // Quick attack, slight sustain, quick release
+      gainNode.gain.setValueAtTime(0, now);
+      gainNode.gain.linearRampToValueAtTime(0.6, now + duration * 0.15);
+      gainNode.gain.linearRampToValueAtTime(0.4, now + duration * 0.7);
+      gainNode.gain.linearRampToValueAtTime(0, now + duration);
+
+      osc.start(now);
+      osc.stop(now + duration + 0.05);
+
+      return duration * 1000;
+    }
+
+    async function speakText(text, voice) {
+      if (isSpeaking) return;
+      isSpeaking = true;
+
+      const voiceConfig = VOICE_CONFIGS[voice];
+      const speedMod = parseFloat(document.getElementById('voiceSpeed').value) / 100;
+      
+      // Convert text to syllables (roughly)
+      const cleanText = text.replace(/[^a-zA-Z\s]/g, '').toLowerCase();
+      const words = cleanText.split(/\s+/).filter(w => w.length > 0);
+      
+      // Estimate syllables per word (simple approximation)
+      let syllables = [];
+      for (const word of words) {
+        const syllableCount = Math.max(1, Math.ceil(word.length / 3));
+        for (let i = 0; i < syllableCount; i++) {
+          syllables.push({ wordEnd: i === syllableCount - 1 });
+        }
+      }
+
+      // If no text, just play a few random syllables
+      if (syllables.length === 0) {
+        syllables = Array(5).fill({ wordEnd: false });
+      }
+
+      // Play syllables with timing
+      for (let i = 0; i < syllables.length; i++) {
+        if (!isSpeaking) break;
+
+        const pitchIndex = i % voiceConfig.pitchContour.length;
+        const pitchMult = voiceConfig.pitchContour[pitchIndex];
+        const randomFactor = 0.8 + Math.random() * 0.4;
+
+        const duration = playSyllable(voiceConfig, pitchMult, randomFactor);
+        
+        // Add small pause between syllables, longer pause at word ends
+        const pause = syllables[i].wordEnd ? duration * 0.4 : duration * 0.1;
+        await new Promise(resolve => setTimeout(resolve, duration + pause));
+      }
+
+      isSpeaking = false;
+    }
+
+    function setupTalkMode() {
+      // Voice buttons - play sample when clicked
+      document.querySelectorAll('.voice-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const voice = btn.dataset.voice;
+          currentVoice = voice;
+          
+          // Update active state
+          document.querySelectorAll('.voice-btn').forEach(b => b.classList.remove('speaking'));
+          btn.classList.add('speaking');
+          
+          // Speak a sample phrase
+          await speakText('Hello there how are you', voice);
+          
+          btn.classList.remove('speaking');
+        });
+      });
+
+      // Speak button
+      document.getElementById('speakBtn').addEventListener('click', async () => {
+        const text = document.getElementById('talkInput').value || 'Blah blah blah blah';
+        const btn = document.getElementById('speakBtn');
+        
+        btn.classList.add('speaking');
+        await speakText(text, currentVoice);
+        btn.classList.remove('speaking');
+      });
+
+      // Enter key in input
+      document.getElementById('talkInput').addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const text = e.target.value || 'Blah blah blah blah';
+          await speakText(text, currentVoice);
+        }
+      });
+
+      // Stop speaking on Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          isSpeaking = false;
+        }
+      });
+    }
+
+    // ============================================
     // INITIALIZATION
     // ============================================
     document.addEventListener('DOMContentLoaded', () => {
       createPresetGrid();
       setupEventListeners();
       setupVisualizer();
+      setupTalkMode();
       updateAllLabels();
     });
   </script>
